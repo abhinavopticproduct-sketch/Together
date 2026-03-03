@@ -81,7 +81,13 @@ export default function CanvasBoard() {
     const handleMouseDown = (e) => {
         if (!isCurrentDrawer || gameState !== 'DRAWING') return;
 
-        const rect = canvasRef.current.getBoundingClientRect();
+        setIsDrawing(true);
+    };
+
+    // touch equivalents
+    const handleTouchStart = (e) => {
+        if (!isCurrentDrawer || gameState !== 'DRAWING') return;
+        e.preventDefault();
         setIsDrawing(true);
     };
 
@@ -115,8 +121,46 @@ export default function CanvasBoard() {
         });
     };
 
+    // touch move
+    const handleTouchMove = (e) => {
+        if (!isDrawing || !isCurrentDrawer || gameState !== 'DRAWING') return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = canvasRef.current.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+
+        // approximate previous point using movement from last touch
+        const prevX = x;
+        const prevY = y;
+
+        const drawData = {
+            x,
+            y,
+            prevX,
+            prevY,
+            color: selectedColor,
+            thickness: brushSize,
+            type: 'draw',
+            isEraser: false
+        };
+
+        drawOnCanvas(drawData, true);
+        addDrawingData(drawData);
+
+        socket.emit(socketEvents.DRAW, {
+            roomId,
+            drawData
+        });
+    };
+
     const handleMouseUp = () => {
         setIsDrawing(false);
+    };
+
+    const handleTouchEnd = (e) => {
+        setIsDrawing(false);
+        e.preventDefault();
     };
 
     const handleClearCanvas = () => {
@@ -142,6 +186,9 @@ export default function CanvasBoard() {
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
                     onMouseLeave={handleMouseUp}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
                     className={`block ${canDraw ? 'cursor-crosshair' : 'cursor-not-allowed'}`}
                     width={800}
                     height={600}
