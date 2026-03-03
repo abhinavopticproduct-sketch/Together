@@ -289,6 +289,10 @@ Default settings (can be modified in `gameHandler.js`):
 - [ ] Mobile responsive improvements
 - [ ] Emoji reactions
 - [ ] AI word suggestions
+
+### Mobile improvements
+- Prevent page scrolling while drawing on touch devices (added `touch-action: none` on canvas)
+- Display transient hint banner when someone is close to guessing the word
 - [ ] User statistics/history
 - [ ] Lobby chat before game starts
 - [ ] Custom word sets
