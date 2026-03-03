@@ -190,6 +190,7 @@ export default function CanvasBoard() {
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
                     className={`block ${canDraw ? 'cursor-crosshair' : 'cursor-not-allowed'}`}
+                    style={{ touchAction: 'none' }}
                     width={800}
                     height={600}
                 />

@@ -12,6 +12,7 @@ export default function Game({ onNavigate, gameData }) {
     const [showWordOptions, setShowWordOptions] = useState(false);
     const [likesThisRound, setLikesThisRound] = useState(0);
     const [dislikesThisRound, setDislikesThisRound] = useState(0);
+    const [hintMessage, setHintMessage] = useState(''); // display AI hint / close feedback
 
     const {
         roomId: storedRoomId,
@@ -74,6 +75,16 @@ export default function Game({ onNavigate, gameData }) {
             setGameState('GAME_END');
             setPlayers(data.players);
             setShowWordOptions(false);
+        });
+
+        // hint from server when someone is close
+        socket.on('guess_feedback', (data) => {
+            const msg = `🔥 ${data.playerName} is close!`;
+            setHintMessage(msg);
+            // clear after a few seconds so it doesn't linger
+            setTimeout(() => setHintMessage(''), 4000);
+            // also add to chat so mobile users can see in messages history
+            addMessage({ id: Date.now(), playerName: 'HINT', message: msg, isSystemMessage: true });
         });
 
         return () => {
@@ -163,16 +174,21 @@ export default function Game({ onNavigate, gameData }) {
                     {/* Canvas and Canvas Controls */}
                     <div className="xl:col-span-3 space-y-4">
                         {/* Top Bar */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <Timer />
-                            <div className="bg-white rounded-lg p-4 shadow text-center">
-                                <p className="text-sm text-gray-600 mb-1">Current Word</p>
-                                <p className="text-3xl font-mono font-bold text-blue-600 tracking-widest">
-                                    {isCurrentDrawer ? (useGameStore.getState().currentWord || maskedWord || '_ _ _') : (maskedWord || '_ _ _')}
-                                </p>
-                            </div>
-                        </div>
-
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Timer />
+                    <div className="bg-white rounded-lg p-4 shadow text-center">
+                        <p className="text-sm text-gray-600 mb-1">Current Word</p>
+                        <p className="text-3xl font-mono font-bold text-blue-600 tracking-widest">
+                            {isCurrentDrawer ? (useGameStore.getState().currentWord || maskedWord || '_ _ _') : (maskedWord || '_ _ _')}
+                        </p>
+                    </div>
+                </div>
+                {/* hint message banner */}
+                {hintMessage && (
+                    <div className="mt-2 bg-yellow-300 text-yellow-900 rounded-lg p-2 text-center font-semibold">
+                        {hintMessage}
+                    </div>
+                )}
                         {/* Canvas */}
                         <CanvasBoard />
 
