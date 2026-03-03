@@ -21,6 +21,7 @@ export default function Game({ onNavigate, gameData }) {
         setPlayers,
         setCurrentDrawer,
         setRound,
+        setCurrentWord,
         setMaskedWord,
         setWordOptions,
         currentDrawer,
@@ -89,6 +90,10 @@ export default function Game({ onNavigate, gameData }) {
             roomId,
             word
         });
+        // Set the current word locally for the drawer so they can see it immediately
+        setCurrentWord(word);
+        const masked = word.split('').map(() => '_').join(' ');
+        setMaskedWord(masked);
         setShowWordOptions(false);
     };
 
@@ -154,7 +159,7 @@ export default function Game({ onNavigate, gameData }) {
                 </div>
 
                 {/* Main Game Area */}
-                <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {/* Canvas and Canvas Controls */}
                     <div className="xl:col-span-3 space-y-4">
                         {/* Top Bar */}
@@ -163,7 +168,7 @@ export default function Game({ onNavigate, gameData }) {
                             <div className="bg-white rounded-lg p-4 shadow text-center">
                                 <p className="text-sm text-gray-600 mb-1">Current Word</p>
                                 <p className="text-3xl font-mono font-bold text-blue-600 tracking-widest">
-                                    {maskedWord || '_ _ _'}
+                                    {isCurrentDrawer ? (useGameStore.getState().currentWord || maskedWord || '_ _ _') : (maskedWord || '_ _ _')}
                                 </p>
                             </div>
                         </div>
