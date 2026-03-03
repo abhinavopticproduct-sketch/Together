@@ -14,6 +14,13 @@ export default function Game({ onNavigate, gameData }) {
     const [dislikesThisRound, setDislikesThisRound] = useState(0);
     const [hintMessage, setHintMessage] = useState(''); // display AI hint / close feedback
 
+    // lock body scroll when game is active so keyboard interaction doesn't move the whole screen
+    useEffect(() => {
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = prev; };
+    }, []);
+
     const {
         roomId: storedRoomId,
         playerId,
@@ -162,7 +169,20 @@ export default function Game({ onNavigate, gameData }) {
                 </div>
             )}
 
-            <div className="max-w-7xl mx-auto">
+            {/* fixed sidebar */}
+            <div className="fixed top-0 right-0 bottom-0 w-80 p-4 z-20">
+                <div className="h-full flex flex-col">
+                    <ChatBox />
+                    <div className="mt-4">
+                        <PlayerList />
+                    </div>
+                    <div className="mt-4">
+                        <ScoreBoard />
+                    </div>
+                </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto pr-80">
                 {/* Header */}
                 <div className="text-white text-center mb-4">
                     <h1 className="text-3xl font-bold">🎨 Together</h1>
@@ -170,42 +190,31 @@ export default function Game({ onNavigate, gameData }) {
                 </div>
 
                 {/* Main Game Area */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="flex flex-col gap-4">
                     {/* Canvas and Canvas Controls */}
-                    <div className="xl:col-span-3 space-y-4">
+                    <div className="space-y-4">
                         {/* Top Bar */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Timer />
-                    <div className="bg-white rounded-lg p-4 shadow text-center">
-                        <p className="text-sm text-gray-600 mb-1">Current Word</p>
-                        <p className="text-3xl font-mono font-bold text-blue-600 tracking-widest">
-                            {isCurrentDrawer ? (useGameStore.getState().currentWord || maskedWord || '_ _ _') : (maskedWord || '_ _ _')}
-                        </p>
-                    </div>
-                </div>
-                {/* hint message banner */}
-                {hintMessage && (
-                    <div className="mt-2 bg-yellow-300 text-yellow-900 rounded-lg p-2 text-center font-semibold">
-                        {hintMessage}
-                    </div>
-                )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Timer />
+                            <div className="bg-white rounded-lg p-4 shadow text-center">
+                                <p className="text-sm text-gray-600 mb-1">Current Word</p>
+                                <p className="text-3xl font-mono font-bold text-blue-600 tracking-widest">
+                                    {isCurrentDrawer ? (useGameStore.getState().currentWord || maskedWord || '_ _ _') : (maskedWord || '_ _ _')}
+                                </p>
+                            </div>
+                        </div>
+                        {/* hint message banner */}
+                        {hintMessage && (
+                            <div className="mt-2 bg-yellow-300 text-yellow-900 rounded-lg p-2 text-center font-semibold">
+                                {hintMessage}
+                            </div>
+                        )}
+
                         {/* Canvas */}
                         <CanvasBoard />
 
                         {/* Color Picker */}
                         <ColorPicker />
-                    </div>
-
-                    {/* Right Sidebar */}
-                    <div className="space-y-4">
-                        {/* Chat */}
-                        <div className="h-96">
-                            <ChatBox />
-                        </div>
-
-                        {/* Players and Scores */}
-                        <PlayerList />
-                        <ScoreBoard />
                     </div>
                 </div>
             </div>
